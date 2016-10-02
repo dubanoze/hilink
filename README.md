@@ -6,7 +6,17 @@
 
 
 ### Usage
+```
+pip install xmltodict
+pip install requests
 
+python
+from e3372 import Client
+c = Client()
+if c.is_hilink():
+    print c.basic_info().productfamily
+
+```
 
 ### License
 ```
