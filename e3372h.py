@@ -7,6 +7,7 @@ import xmltodict
 logger = logging.getLogger(__file__)
 logger.setLevel(logging.INFO)
 
+
 class Client:
 
     HOME_URL = 'http://{host}/html/home.html'
@@ -15,8 +16,9 @@ class Client:
     def __init__(self, host='192.168.8.1'):
         self.home_url = self.HOME_URL.format(host=host)
         self.api_url = self.API_URL.format(host=host)
-        self.session  = requests.Session()
+        self.session = requests.Session()
         self.connected = False
+
         try:
             self.session.get(self.home_url, timeout=(0.5, 0.5))
             self.connected = True
@@ -24,23 +26,22 @@ class Client:
             self.connected = False
             print e
 
-
     def is_connected(f):
         def wrapper(self, *args, **kwargs):
-            if self.connected == False:
+            if self.connected is False:
                 return None
 
             return f(self, *args, **kwargs)
         return wrapper
 
-
     @is_connected
     def _api_request(self, api_method_url):
 
         try:
-            r = self.session.get(url=self.api_url + api_method_url, allow_redirects=False, timeout=(0.5, 0.5))
+            r = self.session.get(url=self.api_url + api_method_url,
+                                 allow_redirects=False, timeout=(0.5, 0.5))
         except requests.exceptions.RequestException as e:
-            return False;
+            return False
 
         if r.status_code != 200:
             return False
@@ -54,17 +55,19 @@ class Client:
 
     @is_connected
     def _api_post(self, api_method_url, data):
-        if self.connected == False:
+        if self.connected is False:
             return None
 
         self._get_token()
-        headers = {'__RequestVerificationToken': self.token }
+        headers = {'__RequestVerificationToken': self.token}
         request = {}
         request['request'] = data
         try:
-            r = self.session.post(url=self.api_url + api_method_url, data = xmltodict.unparse(request, pretty=True), headers = headers, timeout=(0.5, 0.5))
+            r = self.session.post(url=self.api_url + api_method_url,
+                                  data=xmltodict.unparse(request, pretty=True),
+                                  headers=headers, timeout=(0.5, 0.5))
         except requests.exceptions.RequestException as e:
-            return False;
+            return False
 
         if r.status_code != 200:
             return False
@@ -75,19 +78,18 @@ class Client:
     def _get_token(self):
         api_method_url = 'webserver/SesTokInfo'
         try:
-            r = self.session.get(url=self.api_url + api_method_url, allow_redirects=False, timeout=(0.5, 0.5))
+            r = self.session.get(url=self.api_url + api_method_url,
+                                 allow_redirects=False, timeout=(0.5, 0.5))
 
             self.token = xmltodict.parse(r.text)['response']['TokInfo']
 
         except requests.exceptions.RequestException as e:
-            return False;
+            return False
 
         if r.status_code != 200:
             return False
 
         return r
-
-
 
     @is_connected
     def is_hilink(self):
@@ -139,7 +141,6 @@ class Client:
         '''
         self._api_request('global/module-switch')
         return self
-
 
     @is_connected
     def coverged_status(self):
@@ -237,7 +238,6 @@ class Client:
         self._api_request('monitoring/traffic-statistics')
         return self
 
-
     @is_connected
     def device_information(self):
         '''
@@ -259,7 +259,6 @@ class Client:
         '''
         self._api_request('device/information')
         return self
-
 
     @is_connected
     def current_plmn(self):
