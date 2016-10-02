@@ -91,6 +91,76 @@ class Client:
 
         return r
 
+    def _get_connection_status(self, status):
+        statu = {}
+        statu['2'] = 'Connection failed, the profile is invalid'
+        statu['3'] = 'Connection failed, the profile is invalid'
+        statu['5'] = 'Connection failed, the profile is invalid'
+        statu['8'] = 'Connection failed, the profile is invalid'
+        statu['20'] = 'Connection failed, the profile is invalid'
+        statu['21'] = 'Connection failed, the profile is invalid'
+        statu['23'] = 'Connection failed, the profile is invalid'
+        statu['27'] = 'Connection failed, the profile is invalid'
+        statu['28'] = 'Connection failed, the profile is invalid'
+        statu['29'] = 'Connection failed, the profile is invalid'
+        statu['30'] = 'Connection failed, the profile is invalid'
+        statu['31'] = 'Connection failed, the profile is invalid'
+        statu['32'] = 'Connection failed, the profile is invalid'
+        statu['7'] = 'Network access not allowed'
+        statu['11'] = 'Network access not allowed'
+        statu['14'] = 'Network access not allowed'
+        statu['37'] = 'Network access not allowed'
+        statu['12'] = 'Connection failed, roaming not allowed'
+        statu['13'] = 'Connection failed, bandwidth exceeded'
+        statu['201'] = 'Connection failed, bandwidth exceeded'
+        statu['900'] = 'Connecting'
+        statu['901'] = 'Connected'
+        statu['902'] = 'Disconnected'
+        statu['903'] = 'Disconnecting'
+        statu['904'] = 'Connection failed or disabled'
+        return statu.get(status, 'n/a')
+
+    def _get_network_type(self, nt):
+        ntype = {}
+        ntype['0'] = 'No Service'
+        ntype['1'] = 'GSM'
+        ntype['2'] = 'GPRS (2.5G)'
+        ntype['3'] = 'EDGE (2.75G)'
+        ntype['4'] = 'WCDMA (3G)'
+        ntype['5'] = ''
+        ntype['6'] = ''
+        ntype['7'] = ''
+        ntype['8'] = ''
+        ntype['9'] = 'HSPA+ (4G)'
+        ntype['10'] = ''
+        ntype['11'] = ''
+        ntype['12'] = ''
+        ntype['13'] = ''
+        ntype['14'] = ''
+        ntype['15'] = ''
+        ntype['16'] = ''
+        ntype['17'] = ''
+        ntype['18'] = ''
+        ntype['19'] = ''
+        ntype['41'] = ''
+        ntype['44'] = ''
+        ntype['45'] = ''
+        ntype['46'] = ''
+        ntype['64'] = ''
+        ntype['65'] = ''
+        ntype['101'] = ''
+        return ntype.get(nt, 'n/a')
+
+    def _get_roaming_status(self, status):
+        statu = {}
+        statu['0'] = 'Disabled'
+        statu['1'] = 'Enabled'
+        return statu.get(status, 'n/a')
+
+
+
+
+
     @is_connected
     def is_hilink(self):
         return self._api_request('device/basic_information')
@@ -210,6 +280,12 @@ class Client:
         <ltecastatus>0</ltecastatus>
         '''
         self._api_request('monitoring/status')
+        self.TextConnectionStatus = self._get_connection_status(self.data['ConnectionStatus'])
+        self.data['TextConnectionStatus'] = self.TextConnectionStatus
+        self.TextCurrentNetworkType = self._get_network_type(self.data['CurrentNetworkType'])
+        self.data['TextCurrentNetworkType'] = self.TextCurrentNetworkType
+        self.TextRoamingStatus = self._get_roaming_status(self.data['RoamingStatus'])
+        self.data['TextRoamingStatus'] = self.TextRoamingStatus
         return self
 
     @is_connected
