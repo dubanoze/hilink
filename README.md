@@ -3,19 +3,22 @@
 
 
 ### Summary
+```
+Huawei E3372h hilink client
+```
 
-
-### Usage
+### Install
 ```
 pip install xmltodict
 pip install requests
+```
 
-python
+### Usage
+```python
 from e3372 import Client
 c = Client()
 if c.is_hilink():
     print c.basic_info().productfamily
-
 ```
 
 ### License
