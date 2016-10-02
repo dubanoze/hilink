@@ -157,10 +157,6 @@ class Client:
         statu['1'] = 'Enabled'
         return statu.get(status, 'n/a')
 
-
-
-
-
     @is_connected
     def is_hilink(self):
         return self._api_request('device/basic_information')
@@ -280,11 +276,14 @@ class Client:
         <ltecastatus>0</ltecastatus>
         '''
         self._api_request('monitoring/status')
-        self.TextConnectionStatus = self._get_connection_status(self.data['ConnectionStatus'])
+        self.TextConnectionStatus = self._get_connection_status(
+                                         self.data['ConnectionStatus'])
         self.data['TextConnectionStatus'] = self.TextConnectionStatus
-        self.TextCurrentNetworkType = self._get_network_type(self.data['CurrentNetworkType'])
+        self.TextCurrentNetworkType = self._get_network_type(
+                                           self.data['CurrentNetworkType'])
         self.data['TextCurrentNetworkType'] = self.TextCurrentNetworkType
-        self.TextRoamingStatus = self._get_roaming_status(self.data['RoamingStatus'])
+        self.TextRoamingStatus = self._get_roaming_status(
+                                      self.data['RoamingStatus'])
         self.data['TextRoamingStatus'] = self.TextRoamingStatus
         return self
 
