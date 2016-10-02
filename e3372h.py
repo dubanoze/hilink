@@ -36,9 +36,12 @@ class Client:
 
     @is_connected
     def _api_request(self, api_method_url):
+        self._get_token()
+        headers = {'__RequestVerificationToken': self.token}
 
         try:
             r = self.session.get(url=self.api_url + api_method_url,
+                                 headers=headers,
                                  allow_redirects=False, timeout=(0.5, 0.5))
         except requests.exceptions.RequestException as e:
             return False
@@ -55,9 +58,6 @@ class Client:
 
     @is_connected
     def _api_post(self, api_method_url, data):
-        if self.connected is False:
-            return None
-
         self._get_token()
         headers = {'__RequestVerificationToken': self.token}
         request = {}
@@ -175,7 +175,7 @@ class Client:
         return self
 
     @is_connected
-    def sim_lock(self):
+    def monitoring_status(self):
         '''
         <ConnectionStatus>901</ConnectionStatus>
         <WifiConnectionStatus></WifiConnectionStatus>
@@ -273,6 +273,18 @@ class Client:
         return self
 
     @is_connected
+    def plmn_list(self):
+        '''
+        <State>0</State>
+        <FullName>Beeline KZ</FullName>
+        <ShortName>Beeline KZ</ShortName>
+        <Numeric>40101</Numeric>
+        <Rat>2</Rat>
+        '''
+        self._api_request('net/plmn-list')
+        return self
+
+    @is_connected
     def device_signal(self):
         '''
         <pci></pci>
@@ -300,10 +312,44 @@ class Client:
         <LTEBand>7FFFFFFFFFFFFFFF</LTEBand>
         '''
         if set is None:
-            self._api_request('net/mode')
+            self._api_request('net/net-mode')
             return self
 
-        self._api_post('net/mode', set)
+        self._api_post('net/net-mode', set)
+        return self
+
+    @is_connected
+    def net_mode_list(self, set=None):
+        '''
+        <AccessList>
+        <Access>00</Access>
+        <Access>01</Access>
+        <Access>02</Access>
+        <Access>03</Access>
+        </AccessList>
+        <BandList>
+        <Band>
+        <Name>GSM900&#x2F;GSM1800&#x2F;WCDMA BCVIII&#x2F;WCDMA BCI</Name>
+        <Value>2000000400380</Value>
+        </Band>
+        </BandList>
+        <LTEBandList>
+        <LTEBand>
+        <Name>LTE BC1&#x2F;LTE BC3&#x2F;LTE BC7&#x2F;
+              LTE BC8&#x2F;LTE BC20</Name>
+        <Value>800c5</Value>
+        </LTEBand>
+        <LTEBand>
+        <Name>All bands</Name>
+        <Value>7ffffffffffffff</Value>
+        </LTEBand>
+        </LTEBandList>
+        '''
+        if set is None:
+            self._api_request('net/net-mode-list')
+            return self
+
+        self._api_post('net/net-mode-list', set)
         return self
 
     @is_connected
@@ -327,16 +373,20 @@ class Client:
 def main():
     c = Client()
     if c.is_hilink():
-        print c.basic_info().productfamily
-        print c.module_switch().ussd_enabled
-        dialup_connection = c.dialup_connection()
-        print dialup_connection.ConnectMode
-        print dialup_connection.data
-        d = dialup_connection.data
-        d['ConnectMode'] = 0
-        d['MaxIdelTime'] = 1200
-        print d
-        c.dialup_connection(set=d)
+        # print c.basic_info().productfamily
+        # print c.net_mode().NetworkMode
+        # print c.plmn_list().data
+        print c.monitoring_status().data
+        # pass
+        # print c.module_switch().ussd_enabled
+        # dialup_connection = c.dialup_connection()
+        # print dialup_connection.ConnectMode
+        # print dialup_connection.data
+        # d = dialup_connection.data
+        # d['ConnectMode'] = 0
+        # d['MaxIdelTime'] = 1200
+        # print d
+        # c.dialup_connection(set=d)
 
 if __name__ == "__main__":
     main()
