@@ -5,7 +5,7 @@ import logging
 import xmltodict
 
 logger = logging.getLogger(__file__)
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 
 class Client:
@@ -49,12 +49,17 @@ class Client:
         if r.status_code != 200:
             return False
 
-        resp = xmltodict.parse(r.text)['response']
-        self.data = resp
-        for key in resp:
-            setattr(self, key, resp[key])
+        resp = xmltodict.parse(r.text).get('error', None)
+        if resp is not None:
+            self.error_code = resp['code']
+            return False
 
-        return True
+        resp = xmltodict.parse(r.text).get('response', None)
+        if resp is not None:
+            self.data = resp
+            for key in resp:
+                setattr(self, key, resp[key])
+            return True
 
     @is_connected
     def _api_post(self, api_method_url, data):
@@ -70,6 +75,11 @@ class Client:
             return False
 
         if r.status_code != 200:
+            return False
+
+        resp = xmltodict.parse(r.text).get('error', None)
+        if resp is not None:
+            self.error_code = resp['code']
             return False
 
         return True
@@ -450,7 +460,8 @@ def main():
     if c.is_hilink():
         # print c.basic_info().productfamily
         # print c.net_mode().NetworkMode
-        # print c.plmn_list().data
+        #print c.plmn_list().data
+        print c.current_plmn().data
         print c.monitoring_status().data
         # pass
         # print c.module_switch().ussd_enabled
